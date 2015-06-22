@@ -1,0 +1,92 @@
+#! /bin/bash
+# Programming and idea by : E2MA3N [Iman Homayouni]
+# Email : e2ma3n@Gmail.com
+# Website : http://OSLearn.ir
+# License : GPL v3.0
+# EDRA v1.0
+#####################################################
+
+# main function
+function P0 {
+
+var0=`cat /etc/ssh/sshd_config | grep -n PermitRootLogin | head -n 1 | cut -d : -f 2 | cut -c 1`
+var2=`cat /etc/ssh/sshd_config | grep -n PermitRootLogin | head -n 1 | cut -d : -f 1`
+var3=`ls /etc/init.d/ssh /etc/init.d/sshd 2> /dev/null`
+
+if [ "$var0" = "#" ];then
+	status=`echo -e "\e[91menable"`
+
+	function P1 {
+		echo -e '\e[93m[+] Warning : if you connected to server using root user, before disabling root access, create another user for connecting to server '
+		echo -ne '\e[92m[>] \e[39mDo you want to disable this ? [Y/N] : ' ; read var1
+		echo '[+]'
+	}
+
+	function P2 {
+		if [ "$var1" = "Y" ];then
+			sed -i "`echo $var2`s/^.\{1\}//" /etc/ssh/sshd_config
+			$var3 restart
+			echo -e '\e[92m[+] \e[39mSSH root access disabled'
+			echo '[+] ----------------------------------------------------- [+]'
+		elif [ "$var1" = "N" ];then
+			echo '[+] ----------------------------------------------------- [+]'
+		else
+			echo '[-] Bad input'
+			echo '[+] ----------------------------------------------------- [+]'
+		fi
+	}
+
+elif [ "$var0" = "P" ];then
+	status=`echo -e "\e[92mdisable"`
+
+	function P1 {
+		echo -e "\e[93m[+] Secutiry advice : it's better keep disable this option"
+		echo -ne '\e[91m[>] \e[39mDo you want to enable this ? [Y/N] : ' ; read var1
+		echo '[+]'
+	}
+
+	function P2 {
+		if [ "$var1" = "Y" ];then
+			sed -i "`echo $var2`s/^/#/" /etc/ssh/sshd_config
+			$var3 restart
+			echo -e '\e[91m[+] \e[39mSSH root access enabled'
+			echo '[+] ----------------------------------------------------- [+]'
+		elif [ "$var1" = "N" ];then
+			echo '[+] ----------------------------------------------------- [+]'
+		else
+			echo '[-] Bad input'
+			echo '[+] ----------------------------------------------------- [+]'
+        fi
+	}
+
+else
+	status=`echo -e "\e[93mErorr : not found"`
+fi
+
+}
+
+# check privilege
+function P3 {
+if [ "`whoami`" != "root" ];then
+        echo '[-] Please use root user or use sudo'
+        echo '[+] ----------------------------------------------------- [+]' ; exit
+fi
+}
+
+# check ssh config file
+function P4 {
+ls /etc/ssh/sshd_config &> /dev/null
+if [ "$?" != "0" ];then
+        echo '[-] Config file not found'
+	echo '[+] ----------------------------------------------------- [+]' ; exit
+fi
+}
+
+# main menu
+reset
+echo '[+] ----------------------------------------------------- [+]'
+echo '[+] Welcome to EDRA [Enable Disable Root Access] v1.0'
+echo '[+] Programming and idea by : E2MA3N [Iman Homayouni]'
+echo '[+]' ; P3 ; P4 ; P0
+echo '[+] Status : SSH root access is' $status ;
+P1 ; P2
